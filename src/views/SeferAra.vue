@@ -1,51 +1,74 @@
 <template>
 <div class="container">
- <h2>Hareket Noktaları</h2>
-        <form @submit.prevent="sefer_ara">
-            <div class="form-row align-items-center">
-                <div class="col-sm-2">
-                    <label>Kalkış Noktası</label>
-                    <select class="form-control" v-model="kalkis_noktasi">
-                        <option value="">Seçiniz</option>
-                        <option v-for="item in hareket_noktalari" :key="item.id" :value="item.id" v-text="item.aciklama"></option>
-                    </select>
-                </div>
-                <div class="col-sm-2">
-                    <label>Varış Noktası</label>
-                    <select class="form-control" v-model="varis_noktasi">
-                        <option value="">Seçiniz</option>
-                        <option v-for="item in hareket_noktalari" :key="item.id" :value="item.id" v-text="item.aciklama"></option>
-                    </select>
-                </div>
-                <div class="col-sm-2">
-                    <label>Gidiş Tarihi</label>
-                    <input type="date" class="form-control" v-model="gidis_tarihi">
-                </div>
-                <div class="col-auto">
-                    <label>&nbsp;</label>
-                    <button type="submit" class="btn btn-primary btn-block">Ara</button>
-                </div>
-            </div>
-        </form>
-        <hr>
-        <div v-if="isLoading">Seferler Yükleniyor...</div>
-        {{mesaj}}
-        <div v-if="bulunan_seferler.length">
-            <h2>Sefer Listesi</h2>
-            <table class="table table-hover">
-                <tr v-for="item in bulunan_seferler" :key="item.id">
-                    <td>Kalkış Saati
-                        <h4>{{ getSaat(item.kalkis_tarihi) }}</h4>
-                    </td>
-                    <td>Bilet Fiyatı
-                        <h4>{{ item.bilet_fiyati }} ₺</h4>
-                    </td>
-                    <td>
-                        <button class="btn btn-success btn-sm" @click="sefer_sec(item.id)">Koltuk Seç</button>
-                    </td>
-                </tr>
-            </table>
-        </div>
+  <h2>Hareket Noktaları</h2>
+  <form @submit.prevent="sefer_ara">
+      <div class="form-row align-items-center">
+          <div class="col-sm-2">
+              <label>Kalkış Noktası</label>
+              <select class="form-control" v-model="kalkis_noktasi">
+                  <option value="">Seçiniz</option>
+                  <option v-for="item in hareket_noktalari" :key="item.id" :value="item.id" v-text="item.aciklama"></option>
+              </select>
+          </div>
+          <div class="col-sm-2">
+              <label>Varış Noktası</label>
+              <select class="form-control" v-model="varis_noktasi">
+                  <option value="">Seçiniz</option>
+                  <option v-for="item in hareket_noktalari" :key="item.id" :value="item.id" v-text="item.aciklama"></option>
+              </select>
+          </div>
+          <div class="col-sm-2">
+              <label>Gidiş Tarihi</label>
+              <input type="date" class="form-control" v-model="gidis_tarihi">
+          </div>
+          <div class="col-auto">
+              <label>&nbsp;</label>
+              <button type="submit" class="btn btn-primary btn-block">Ara</button>
+          </div>
+      </div>
+  </form>
+  <hr>
+  <div v-if="isLoading">Seferler Yükleniyor...</div>
+  {{mesaj}}
+  <div v-if="bulunan_seferler.length">
+      <h2>Sefer Listesi</h2>
+      <table class="table table-hover">
+          <tr v-for="item in bulunan_seferler" :key="item.id">
+              <td>Kalkış Saati
+                  <h4>{{ getSaat(item.kalkis_tarihi) }}</h4>
+              </td>
+              <td>Bilet Fiyatı
+                  <h4>{{ item.bilet_fiyati }} ₺</h4>
+              </td>
+              <td>
+                  <button class="btn btn-success btn-sm" @click="sefer_sec(item.id)">Koltuk Seç</button>
+              </td>
+          </tr>
+      </table>
+  </div>
+  <div class="list">
+    <h2>Seferler</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Kalkış Noktası</th>
+          <th scope="col">Varış Noktası</th>
+          <th scope="col">Gidiş Tarihi</th>
+          <th scope="col">Fiyat</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in this.seferler" :key="item.id">
+          <th scope="row" v-text="item.id"></th>
+          <td>{{getDescription(item.kalkis_noktasi)}}</td>
+          <td>{{getDescription(item.varis_noktasi)}}</td>
+          <td>{{new Date(item.kalkis_tarihi).toLocaleDateString()}}</td>
+          <td>{{item.bilet_fiyati}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 </template>
 
@@ -68,9 +91,13 @@ export default {
   created(){
     this.hareket_noktalari = db.hareket_noktalari;
     this.seferler = db.seferler;
+    this.departurePoint = this.findDeparturePoint();
   },
   methods:{
-    
+    getDescription(id) {
+      const elem = this.hareket_noktalari.find(item => item.id === id)
+      return elem ? elem.aciklama : '';
+    },
     sefer_ara(){
       this.isLoading = true;
       this.bulunan_seferler = this.seferler.filter(x=> 
