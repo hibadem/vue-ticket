@@ -1,6 +1,6 @@
 # vue ticket app
 
-https://hopeful-easley-8f482b.netlify.app/seferara
+https://hopeful-easley-8f482b.netlify.app/
 
 ## Project setup
 ```
